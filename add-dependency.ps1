@@ -6,34 +6,18 @@ param(
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$venvPython = Join-Path $projectRoot ".venv\\Scripts\\python.exe"
-$requirementsFile = Join-Path $projectRoot "requirements-notebook.txt"
+$managerScript = Join-Path $projectRoot "scripts\\manage_env.py"
+$pythonCmd = Get-Command python -ErrorAction SilentlyContinue
+$pyLauncher = Get-Command py -ErrorAction SilentlyContinue
 
-if (-not (Test-Path $venvPython)) {
-    Write-Error "Ambiente .venv nao encontrado. Rode .\\setup.ps1 antes."
+if ($pythonCmd) {
+    & $pythonCmd.Source $managerScript add @Packages
+    exit $LASTEXITCODE
 }
-
-Write-Host "Instalando: $($Packages -join ', ')" -ForegroundColor Cyan
-& $venvPython -m pip install @Packages
-
-$existing = @()
-if (Test-Path $requirementsFile) {
-    $existing = Get-Content $requirementsFile | Where-Object { $_.Trim() -ne "" }
+elseif ($pyLauncher) {
+    & $pyLauncher.Source -3 $managerScript add @Packages
+    exit $LASTEXITCODE
 }
-
-$updated = [System.Collections.Generic.List[string]]::new()
-foreach ($line in $existing) {
-    $updated.Add($line)
+else {
+    Write-Error "Python nao encontrado no PATH. Instale o Python 3.11+ e tente novamente."
 }
-
-foreach ($package in $Packages) {
-    if ($updated -notcontains $package) {
-        $updated.Add($package)
-    }
-}
-
-$updated |
-    Sort-Object -Unique |
-    Set-Content -Path $requirementsFile
-
-Write-Host "requirements-notebook.txt atualizado." -ForegroundColor Green

@@ -1,27 +1,18 @@
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$managerScript = Join-Path $projectRoot "scripts\\manage_env.py"
 $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
+$pyLauncher = Get-Command py -ErrorAction SilentlyContinue
 
-if (-not $pythonCmd) {
+if ($pythonCmd) {
+    & $pythonCmd.Source $managerScript setup
+    exit $LASTEXITCODE
+}
+elseif ($pyLauncher) {
+    & $pyLauncher.Source -3 $managerScript setup
+    exit $LASTEXITCODE
+}
+else {
     Write-Error "Python nao encontrado no PATH. Instale o Python 3.11+ e tente novamente."
 }
-
-$venvPython = Join-Path $projectRoot ".venv\\Scripts\\python.exe"
-$requirementsFile = Join-Path $projectRoot "requirements-notebook.txt"
-
-if (-not (Test-Path $venvPython)) {
-    Write-Host "Criando ambiente virtual em .venv..." -ForegroundColor Cyan
-    & python -m venv (Join-Path $projectRoot ".venv")
-}
-
-Write-Host "Atualizando pip..." -ForegroundColor Cyan
-& $venvPython -m pip install --upgrade pip
-
-Write-Host "Instalando dependencias do projeto..." -ForegroundColor Cyan
-& $venvPython -m pip install -r $requirementsFile
-
-Write-Host ""
-Write-Host "Ambiente pronto." -ForegroundColor Green
-Write-Host "No VS Code, selecione o interpretador .venv\\Scripts\\python.exe"
-

@@ -1,6 +1,6 @@
 # Ambiente local para notebooks no VS Code
 
-Este projeto ficou configurado para usar notebooks direto no VS Code, sem abrir navegador.
+Este projeto ficou configurado para usar notebooks direto no VS Code, sem abrir navegador, em Windows e Linux.
 
 ## O que precisa
 
@@ -15,6 +15,7 @@ Este projeto ficou configurado para usar notebooks direto no VS Code, sem abrir 
 - script para criar o `.venv` e instalar tudo
 - script para adicionar dependencias novas de forma simples
 - configuracao do workspace para o VS Code usar esse ambiente automaticamente
+- suporte a Windows e Fedora/Linux
 - base minima para notebooks cientificos: `numpy`, `scipy` e `matplotlib`
 
 ## Como fica parecido com o Colab
@@ -29,7 +30,9 @@ Se o seu codigo estiver em `.py` e voce quiser algo parecido com celulas do Cola
 
 Isso permite rodar cada bloco na janela interativa do VS Code.
 
-## Como usar em outro computador
+## Windows
+
+### Setup
 
 1. Clone o repositorio.
 2. Abra a pasta no VS Code.
@@ -45,20 +48,16 @@ Se preferir:
 setup.bat
 ```
 
-4. Instale as extensoes `Python` e `Jupyter` se o VS Code pedir.
-5. Abra um `.ipynb`.
-6. Selecione o interpretador ou kernel `.venv\Scripts\python.exe`.
-7. Rode as celulas normalmente.
+### Abrir notebooks
 
-## Como adicionar dependencias
+1. Instale as extensoes `Python` e `Jupyter` se o VS Code pedir.
+2. Abra um `.ipynb`.
+3. Selecione o interpretador ou kernel `.venv\Scripts\python.exe`.
+4. Rode as celulas normalmente.
+
+### Adicionar dependencias
 
 Para instalar uma dependencia nova e ja salvar no `requirements-notebook.txt`, rode:
-
-```powershell
-.\add-dependency.ps1 nome-do-pacote
-```
-
-Exemplos:
 
 ```powershell
 .\add-dependency.ps1 pandas
@@ -77,12 +76,49 @@ Esse comando faz duas coisas:
 - instala o pacote dentro do `.venv`
 - adiciona o pacote no `requirements-notebook.txt`
 
+## Fedora / Linux
+
+### Setup
+
+1. Clone o repositorio.
+2. Garanta que o Python 3 esteja instalado.
+3. Abra a pasta no VS Code.
+4. No terminal da pasta, rode:
+
+```bash
+bash setup.sh
+```
+
+### Abrir notebooks
+
+1. Instale as extensoes `Python` e `Jupyter` se o VS Code pedir.
+2. Abra um `.ipynb`.
+3. Selecione o interpretador ou kernel `.venv/bin/python`.
+4. Rode as celulas normalmente.
+
+### Adicionar dependencias
+
+Para instalar uma dependencia nova e ja salvar no `requirements-notebook.txt`, rode:
+
+```bash
+bash add-dependency.sh pandas
+bash add-dependency.sh seaborn scikit-learn
+bash add-dependency.sh "librosa==0.11.0"
+```
+
+Esse comando faz duas coisas:
+
+- instala o pacote dentro do `.venv`
+- adiciona o pacote no `requirements-notebook.txt`
+
 ## Arquivos importantes
 
 - `requirements-notebook.txt`: lista das dependencias do projeto
-- `setup.ps1`: cria o `.venv` e instala tudo
-- `add-dependency.ps1`: instala pacote novo e atualiza o `requirements-notebook.txt`
+- `scripts/manage_env.py`: backend cross-platform do setup
+- `setup.ps1`, `setup.bat`, `setup.sh`: criam o `.venv` e instalam tudo
+- `add-dependency.ps1`, `add-dependency.bat`, `add-dependency.sh`: instalam pacote novo e atualizam o `requirements-notebook.txt`
 - `.vscode/settings.json`: faz o VS Code apontar para o Python do projeto
+- `src/utils/plotting.py`: utilitario reutilizavel de plotagem
 
 ## Observacao importante sobre o .venv
 
@@ -91,7 +127,7 @@ Esse e o jeito mais limpo e confiavel de usar o projeto em outra maquina:
 
 1. versionar `requirements-notebook.txt`
 2. clonar o repo
-3. rodar `.\setup.ps1`
+3. rodar o setup do sistema atual
 
 Isso evita poluir o git com milhares de arquivos, reduz o tamanho do repositorio e evita problemas de caminho ou compatibilidade entre maquinas.
 
@@ -99,3 +135,13 @@ Isso evita poluir o git com milhares de arquivos, reduz o tamanho do repositorio
 
 Voce nao precisa de JupyterLab no navegador para ter experiencia de notebook no VS Code.
 O essencial e: `VS Code + extensoes Python/Jupyter + .venv + ipykernel`.
+
+## Observacao sobre imports nos notebooks
+
+Os notebooks usam `src` como pasta de codigo compartilhado e importam utilitarios com:
+
+```python
+from utils.plotting import plot_series
+```
+
+O notebook resolve a pasta `src` automaticamente em tempo de execucao, entao o mesmo codigo funciona tanto no Windows quanto no Fedora.
