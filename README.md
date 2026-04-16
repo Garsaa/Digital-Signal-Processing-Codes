@@ -138,10 +138,10 @@ O essencial e: `VS Code + extensoes Python/Jupyter + .venv + ipykernel`.
 
 ## Observacao sobre imports nos notebooks
 
-Os notebooks usam `src` como pasta de codigo compartilhado e importam utilitarios com:
+Os notebooks localizam a pasta `src` em tempo de execucao e, a partir dela, importam utilitarios da pasta `utils`:
 
 ```python
 from utils.plotting import plot_series
 ```
 
-O notebook resolve a pasta `src` automaticamente em tempo de execucao, entao o mesmo codigo funciona tanto no Windows quanto no Fedora.
+Isso evita depender de um pacote instalado no ambiente, mas continua deixando o import funcionar dentro dos notebooks do projeto.
